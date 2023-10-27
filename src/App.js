@@ -1,25 +1,45 @@
-import logo from './logo.svg';
 import './App.css';
+import React, { useState, useEffect } from 'react';
+import Web3 from 'web3';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const [web3, setWeb3] = useState();
+    const [account, setAccount] = useState('');
+
+    useEffect(() => {
+        if (typeof window.ethereum !== "undefined") {
+            try {
+                const web = new Web3(window.ethereum);
+                setWeb3(web);
+            } catch (err) {
+                console.log(err);
+            }
+        }
+    }, []);
+
+    const connectWallet = async () => {
+        try {
+            await window.ethereum.enable(); // MetaMask에 연결 요청
+            const accounts = await web3.eth.getAccounts();
+            setAccount(accounts[0]);
+        } catch (error) {
+            console.error("Error connecting to MetaMask: " + error);
+        }
+    };
+
+    return (
+        <div className="App">
+            <button
+                className="metaConnect"
+                onClick={() => {
+                    connectWallet();
+                }}
+            >
+                Connect to MetaMask
+            </button>
+            <div className="userInfo">Address: {account}</div>
+        </div>
+    );
 }
 
 export default App;
